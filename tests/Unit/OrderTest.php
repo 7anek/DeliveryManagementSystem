@@ -6,6 +6,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Order;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 class OrderTest extends TestCase
 {
@@ -14,6 +15,7 @@ class OrderTest extends TestCase
     public function test_order_creation()
     {
         $user = User::factory()->create();
+        $user->assignRole('admin');
 
         $order = Order::create([
             'user_id' => $user->id,

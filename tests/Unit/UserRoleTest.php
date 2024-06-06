@@ -14,7 +14,6 @@ class UserRoleTest extends TestCase
     public function test_user_can_be_assigned_role()
     {
         $user = User::factory()->create();
-        $adminRole = Role::create(['name' => 'admin']);
 
         $user->assignRole('admin');
 

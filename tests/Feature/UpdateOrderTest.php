@@ -7,6 +7,7 @@ use Tests\TestCase;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 class UpdateOrderTest extends TestCase
 {
@@ -15,6 +16,8 @@ class UpdateOrderTest extends TestCase
     public function test_user_can_update_order()
     {
         $user = User::factory()->create();
+        $user->assignRole('admin');
+
         $order = Order::factory()->create([
             'user_id' => $user->id,
             'pickup_address' => '123 Pickup St',

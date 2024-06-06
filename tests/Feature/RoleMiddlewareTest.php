@@ -13,7 +13,6 @@ class RoleMiddlewareTest extends TestCase
 
     public function test_admin_can_access_orders_route()
     {
-        $adminRole = Role::create(['name' => 'admin']);
         $user = User::factory()->create();
         $user->assignRole('admin');
 

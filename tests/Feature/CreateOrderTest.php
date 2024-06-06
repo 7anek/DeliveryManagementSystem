@@ -6,6 +6,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 class CreateOrderTest extends TestCase
 {
@@ -14,6 +15,7 @@ class CreateOrderTest extends TestCase
     public function test_user_can_create_order()
     {
         $user = User::factory()->create();
+        $user->assignRole('admin');
 
         $response = $this->actingAs($user)->postJson('/api/orders', [
             'pickup_address' => '123 Pickup St',

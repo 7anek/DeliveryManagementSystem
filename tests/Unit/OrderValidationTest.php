@@ -5,6 +5,7 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class OrderValidationTest extends TestCase
 {
@@ -15,7 +16,9 @@ class OrderValidationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->user = User::factory()->create();
+        $this->user->assignRole('admin');
     }
 
     public function test_order_requires_pickup_address()
