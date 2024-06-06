@@ -1,15 +1,26 @@
 <?php
-// tests/Unit/OrderValidationTest.php
 
 namespace Tests\Unit;
 
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
 
 class OrderValidationTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->user = User::factory()->create();
+    }
+
     public function test_order_requires_pickup_address()
     {
-        $response = $this->postJson('/api/orders', [
+        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/orders', [
             'delivery_address' => '123 Delivery St'
         ]);
 
@@ -19,7 +30,7 @@ class OrderValidationTest extends TestCase
 
     public function test_order_requires_delivery_address()
     {
-        $response = $this->postJson('/api/orders', [
+        $response = $this->actingAs($this->user, 'sanctum')->postJson('/api/orders', [
             'pickup_address' => '123 Pickup St'
         ]);
 
