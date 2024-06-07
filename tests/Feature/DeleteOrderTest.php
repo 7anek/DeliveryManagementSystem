@@ -27,6 +27,8 @@ class DeleteOrderTest extends TestCase
 
         $response = $this->actingAs($user)->deleteJson('/api/orders/' . $order->id);
 
+        // dump($response->json());
+
         $response->assertStatus(204);
         $this->assertDatabaseMissing('orders', [
             'id' => $order->id

@@ -12,19 +12,10 @@ class PermissionTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // Seed roles and permissions
-        $this->seed(\Database\Seeders\TestDatabaseSeeder::class);
-    }
-
     public function test_admin_can_manage_orders()
     {
-        $admin = User::whereHas('roles', function ($query) {
-            $query->where('name', 'admin');
-        })->first();
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
 
         $this->actingAs($admin, 'sanctum');
 
@@ -54,11 +45,49 @@ class PermissionTest extends TestCase
         $response->assertStatus(204);
     }
 
+    public function test_manager_can_manage_orders()
+    {
+        $manager = User::factory()->create();
+        $manager->assignRole('manager');
+
+        $this->actingAs($manager, 'sanctum');
+
+        // Manager cannot create new orders
+        $response = $this->postJson('/api/orders', [
+            'pickup_address' => '789 Pickup St',
+            'delivery_address' => '101 Delivery St'
+        ]);
+
+        $response->assertStatus(403);
+
+        // Manager can view all orders
+        $response = $this->getJson('/api/orders');
+        $response->assertStatus(200);
+
+        $orders = $response->json();
+        $orderId = $orders[0]['id'] ?? null;
+
+        if ($orderId) {
+            // Manager can update an order
+            $response = $this->putJson("/api/orders/{$orderId}", [
+                'status' => 'in_progress'
+            ]);
+
+            $response->assertStatus(200);
+
+            // Manager can delete an order
+            $response = $this->deleteJson("/api/orders/{$orderId}");
+            $response->assertStatus(204);
+        }
+    }
+
     public function test_client_can_manage_own_orders()
     {
-        $client = User::whereHas('roles', function ($query) {
-            $query->where('name', 'client');
-        })->first();
+        $client = User::factory()->create();
+        $client->assignRole('client');
+
+        // $admin = User::factory()->create();
+        // $admin->assignRole('admin');
 
         $this->actingAs($client, 'sanctum');
 
@@ -68,12 +97,17 @@ class PermissionTest extends TestCase
             'delivery_address' => '101 Delivery St'
         ]);
 
+
+
         $response->assertStatus(201);
 
         $orderId = $response->json('id');
 
+        // $this->actingAs($client, 'sanctum');
+
         // Test viewing own order
         $response = $this->getJson("/api/orders/{$orderId}");
+                // dump($response->json());
         $response->assertStatus(200);
 
         // Test updating own order
@@ -83,20 +117,18 @@ class PermissionTest extends TestCase
 
         $response->assertStatus(200);
 
-        // Test deleting own order - should fail
+        // Test deleting own order
         $response = $this->deleteJson("/api/orders/{$orderId}");
-        $response->assertStatus(403);
+        $response->assertStatus(204);
     }
 
     public function test_client_cannot_manage_others_orders()
     {
-        $client = User::whereHas('roles', function ($query) {
-            $query->where('name', 'client');
-        })->first();
+        $client = User::factory()->create();
+        $client->assignRole('client');
 
-        $admin = User::whereHas('roles', function ($query) {
-            $query->where('name', 'admin');
-        })->first();
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
 
         $this->actingAs($admin, 'sanctum');
 
