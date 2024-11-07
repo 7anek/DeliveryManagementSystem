@@ -39,5 +39,21 @@ class JetstreamServiceProvider extends ServiceProvider
             'update',
             'delete',
         ]);
+
+        Jetstream::role('admin', 'Administrator', [
+            'order:edit',
+            'order:create',
+            'order:view',
+            'user:edit',
+        ])->description('Administrator has full permissions.');
+    
+        Jetstream::role('manager', 'Manager', [
+            'order:edit',
+        ])->description('Manager can manage orders.');
+    
+        Jetstream::role('client', 'Client', [
+            'order:create',
+            'order:view',
+        ])->description('Client can create and view their own orders.');
     }
 }
